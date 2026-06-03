@@ -1,19 +1,177 @@
-# Prediksi Risiko Prediabetes Berdasarkan Faktor Klinis dan Gaya Hidup Menggunakan XGBoost
+# Prediksi Risiko Diabetes Berbasis Machine Learning
 
-Project ini membangun model machine learning menggunakan XGBoost untuk klasifikasi risiko prediabetes berdasarkan faktor klinis dan gaya hidup.
+Aplikasi ini menggunakan Streamlit untuk memprediksi tingkat risiko diabetes pada young adults berdasarkan faktor klinis, gaya hidup, dan model machine learning XGBoost yang sudah dilatih.
 
-## Struktur Project
+## Fitur Aplikasi
 
-- `data/` : dataset yang digunakan
-- `notebooks/` : notebook eksperimen machine learning
-- `models/` : model dan komponen pendukung hasil training
-- `requirements.txt` : daftar library Python yang dibutuhkan
+- Wizard input step-by-step dengan 13 pertanyaan.
+- Prediksi tingkat risiko diabetes menggunakan model `.pkl`.
+- Perhitungan BMI otomatis dari berat badan dan tinggi badan.
+- Tampilan probabilitas per kelas jika model menyediakan `predict_proba()`.
+- Rekomendasi personal berdasarkan hasil prediksi dan faktor risiko pengguna.
+- Tampilan gambar rekomendasi dari folder `assets/`.
+- Validasi path model, dataset, dan asset dari root project.
 
-## Catatan
+## Struktur Folder
 
-Model ini digunakan sebagai sistem screening awal berbasis faktor risiko, bukan sebagai alat diagnosis medis.
+```text
+PROJECT-CAPSTONE/
+|-- app.py
+|-- data/
+|   `-- diabetes_young_adults_india.csv
+|-- models/
+|   `-- model_xgboost_risk_level.pkl
+|-- notebooks/
+|   |-- Inferensi_Diabetes_Rekomendasi.ipynb
+|   `-- Prediksi_Resiko_Diabetes_XGBoost.ipynb
+|-- src/
+|   |-- __init__.py
+|   |-- inference.py
+|   |-- recommendations.py
+|   `-- ui_helpers.py
+|-- assets/
+|   |-- exercise.png
+|   |-- healthy_food.png
+|   |-- medical_checkup.png
+|   |-- no_smoking.png
+|   |-- sleep.png
+|   |-- stress.png
+|   `-- weight_control.png
+|-- requirements.txt
+|-- README.md
+`-- .gitignore
+```
 
-## Cara Menjalankan
+## Prasyarat
+
+- Python 3.10 atau 3.11 disarankan.
+- VS Code opsional.
+- Terminal dijalankan dari root project, yaitu folder `PROJECT-CAPSTONE/`.
+
+## Cara Clone atau Download Project
+
+Jika menggunakan Git:
+
+```bash
+git clone <url-repository>
+cd PROJECT-CAPSTONE
+```
+
+Jika project didapat dari ZIP, ekstrak file ZIP lalu buka terminal di folder hasil ekstrak.
+
+## Membuat Virtual Environment di Windows
+
+```powershell
+python -m venv .venv
+```
+
+## Aktivasi Virtual Environment di Windows
+
+Command Prompt:
+
+```cmd
+.venv\Scripts\activate
+```
+
+PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Jika PowerShell menolak aktivasi script, jalankan:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Lalu aktifkan kembali virtual environment.
+
+## Install Dependencies
 
 ```bash
 pip install -r requirements.txt
+```
+
+## Pastikan File Penting Ada
+
+Sebelum menjalankan aplikasi, pastikan file berikut berada di lokasi yang benar:
+
+- `data/diabetes_young_adults_india.csv`
+- `models/model_xgboost_risk_level.pkl`
+- `assets/exercise.png`
+- `assets/healthy_food.png`
+- `assets/medical_checkup.png`
+- `assets/no_smoking.png`
+- `assets/sleep.png`
+- `assets/stress.png`
+- `assets/weight_control.png`
+
+Jika file model terlalu besar untuk diupload ke GitHub, letakkan file model secara manual di folder `models/` setelah clone/download project.
+
+## Menjalankan Aplikasi Streamlit
+
+Jalankan dari root project:
+
+```bash
+streamlit run app.py
+```
+
+Aplikasi akan membuka browser lokal. Isi pertanyaan satu per satu, cek ringkasan input, lalu klik tombol `Prediksi`.
+
+BMI tidak diisi manual oleh pengguna. BMI dihitung otomatis menggunakan:
+
+```text
+BMI = berat_kg / ((tinggi_cm / 100) ** 2)
+```
+
+## Menjalankan Notebook Training
+
+Notebook training tersedia di:
+
+```text
+notebooks/Prediksi_Resiko_Diabetes_XGBoost.ipynb
+```
+
+Jalankan notebook ini jika ingin melatih ulang model. Pastikan dataset tersedia di folder `data/`, lalu simpan model hasil training ke:
+
+```text
+models/model_xgboost_risk_level.pkl
+```
+
+## Menjalankan Notebook Inferensi
+
+Notebook inferensi tersedia di:
+
+```text
+notebooks/Inferensi_Diabetes_Rekomendasi.ipynb
+```
+
+Notebook tersebut menjadi referensi logic inferensi dan rekomendasi. Versi modular untuk aplikasi Streamlit berada di folder `src/`.
+
+## Troubleshooting
+
+`ModuleNotFoundError`
+: Pastikan virtual environment aktif dan dependencies sudah diinstall dengan `pip install -r requirements.txt`.
+
+`FileNotFoundError` model
+: Pastikan file `models/model_xgboost_risk_level.pkl` tersedia dan terminal berada di root project.
+
+`FileNotFoundError` dataset
+: Pastikan file `data/diabetes_young_adults_india.csv` tersedia.
+
+`FileNotFoundError` asset
+: Aplikasi tetap berjalan tanpa gambar, tetapi rekomendasi hanya tampil sebagai teks. Pastikan semua PNG ada di folder `assets/`.
+
+Error XGBoost belum terinstall
+: Jalankan `pip install xgboost` atau ulangi `pip install -r requirements.txt`.
+
+Terminal dari folder yang salah
+: Pindah ke root project sebelum menjalankan `streamlit run app.py`.
+
+PowerShell tidak bisa activate venv
+: Jalankan `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`, lalu aktifkan ulang `.venv`.
+
+## Disclaimer Medis
+
+Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. Hasil prediksi bukan diagnosis medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan.
