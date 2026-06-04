@@ -7,6 +7,7 @@ import joblib
 import pandas as pd
 
 from src.recommendations import generate_recommendations
+from src.scoring import RISK_LABELS, calculate_risk_score, create_risk_level
 from src.ui_helpers import hitung_bmi
 
 
@@ -29,11 +30,7 @@ DEFAULT_FEATURE_COLUMNS = [
     "Stress_Level",
 ]
 
-DEFAULT_LABEL_MAP = {
-    0: "Tidak Berisiko",
-    1: "Sedang",
-    2: "Tinggi",
-}
+DEFAULT_LABEL_MAP = RISK_LABELS
 
 
 def load_dataset(dataset_path: str | Path = DEFAULT_DATASET_PATH) -> pd.DataFrame:
@@ -202,12 +199,10 @@ def format_probabilities(probabilities: Any, artifact: dict[str, Any]) -> dict[s
     return formatted
 
 
-def calculate_risk_pct(probability_map: dict[str, float]) -> float | None:
+def calculate_model_confidence_pct(probability_map: dict[str, float]) -> float | None:
     if not probability_map:
         return None
-    sedang = probability_map.get("Sedang", 0.0)
-    tinggi = probability_map.get("Tinggi", 0.0)
-    return round((sedang * 0.5 + tinggi) * 100, 1)
+    return round(max(probability_map.values()) * 100, 2)
 
 
 def prediksi_diabetes(
@@ -259,13 +254,18 @@ def prediksi_diabetes(
     if hasattr(model, "predict_proba"):
         probabilities = model.predict_proba(df_input)[0]
     probability_map = format_probabilities(probabilities, artifact)
-    risk_pct = calculate_risk_pct(probability_map)
+    model_confidence_pct = calculate_model_confidence_pct(probability_map)
+    risk_score = calculate_risk_score(data)
+    scoring_label = create_risk_level(risk_score)
     importance_dict = get_feature_importance(artifact)
-    recommendations = generate_recommendations(data, risk_label, importance_dict)
+    recommendations = generate_recommendations(data, scoring_label, importance_dict)
 
     return {
         "risk_label": risk_label,
-        "risk_pct": risk_pct,
+        "model_risk_label": risk_label,
+        "model_confidence_pct": model_confidence_pct,
+        "risk_score": risk_score,
+        "scoring_label": scoring_label,
         "bmi": bmi,
         "kategori_bmi": kategori_bmi,
         "proba": probability_map,

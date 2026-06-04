@@ -20,22 +20,15 @@ from src.ui_helpers import (
 ASSETS_DIR = Path("assets")
 DISCLAIMER = (
     "Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. "
-    "Hasil prediksi bukan diagnosis medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan."
+    "Hasil prediksi bukan diagnosis medis, dan keyakinan model bukan probabilitas medis. "
+    "Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan."
 )
-RISK_COLORS = {
-    "Tidak Berisiko": "#16a34a",
-    "Rendah": "#16a34a",
-    "Sedang": "#facc15",
-    "Tinggi": "#dc2626",
-}
 RISK_EXPLANATIONS = {
     "Tidak Berisiko": "Berdasarkan data yang Anda isi, risiko diabetes saat ini tergolong rendah.",
     "Rendah": "Berdasarkan data yang Anda isi, risiko diabetes saat ini tergolong rendah.",
     "Sedang": "Berdasarkan data yang Anda isi, ada beberapa faktor yang perlu mulai diperhatikan.",
     "Tinggi": "Berdasarkan data yang Anda isi, risiko diabetes tergolong tinggi dan sebaiknya segera ditindaklanjuti.",
 }
-
-
 st.set_page_config(
     page_title="Prediksi Risiko Diabetes",
     page_icon="D",
@@ -144,20 +137,6 @@ def render_probabilities(probabilities: dict[str, float]) -> None:
     st.dataframe(probability_df, hide_index=True, width="stretch")
 
 
-def get_primary_probability(result: dict) -> tuple[str, float | None]:
-    probabilities = result.get("proba", {})
-    if probabilities:
-        label, probability = max(probabilities.items(), key=lambda item: item[1])
-        return label, probability * 100
-
-    risk_label = result.get("risk_label", "-")
-    return risk_label, result.get("risk_pct")
-
-
-def get_risk_color(risk_label: str) -> str:
-    return RISK_COLORS.get(risk_label, "#64748b")
-
-
 def get_risk_explanation(risk_label: str) -> str:
     return RISK_EXPLANATIONS.get(
         risk_label,
@@ -165,30 +144,74 @@ def get_risk_explanation(risk_label: str) -> str:
     )
 
 
-def render_risk_gauge(risk_label: str, risk_percentage: float | None) -> None:
-    value = 0 if risk_percentage is None else risk_percentage
-    color = get_risk_color(risk_label)
+def tampilkan_gauge_status(prediction_label: str) -> None:
+    status_config = {
+        "Tidak Berisiko": {
+            "value": 16.67,
+            "title": "Tidak Berisiko",
+        },
+        "Sedang": {
+            "value": 50,
+            "title": "Risiko Sedang",
+        },
+        "Tinggi": {
+            "value": 83.33,
+            "title": "Risiko Tinggi",
+        },
+    }
+    config = status_config.get(
+        prediction_label,
+        {
+            "value": 0,
+            "title": prediction_label,
+        },
+    )
     fig = go.Figure(
         go.Indicator(
-            mode="gauge+number",
-            value=value,
-            number={"suffix": "%", "valueformat": ".2f", "font": {"size": 42, "color": color}},
-            title={"text": f"Kategori Risiko: {risk_label}", "font": {"size": 20, "color": color}},
+            mode="gauge",
+            value=config["value"],
+            title={
+                "text": f"Status Risiko Prediksi<br><b>{config['title']}</b>",
+                "font": {"size": 24},
+            },
             gauge={
-                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#94a3b8"},
-                "bar": {"color": color, "thickness": 0.28},
-                "bgcolor": "white",
-                "borderwidth": 1,
-                "bordercolor": "#e2e8f0",
+                "axis": {
+                    "range": [0, 100],
+                    "tickvals": [16.67, 50, 83.33],
+                    "ticktext": [
+                        "Tidak Berisiko",
+                        "Sedang",
+                        "Tinggi",
+                    ],
+                },
+                "bar": {
+                    "thickness": 0.25,
+                },
                 "steps": [
-                    {"range": [0, 40], "color": "#dcfce7"},
-                    {"range": [40, 70], "color": "#fef9c3"},
-                    {"range": [70, 100], "color": "#fee2e2"},
+                    {
+                        "range": [0, 33.33],
+                        "color": "#D1FAE5",
+                    },
+                    {
+                        "range": [33.33, 66.67],
+                        "color": "#FEF3C7",
+                    },
+                    {
+                        "range": [66.67, 100],
+                        "color": "#FEE2E2",
+                    },
                 ],
+                "threshold": {
+                    "line": {
+                        "width": 6,
+                    },
+                    "thickness": 0.8,
+                    "value": config["value"],
+                },
             },
         )
     )
-    fig.update_layout(height=280, margin={"l": 24, "r": 24, "t": 48, "b": 16})
+    fig.update_layout(height=350, margin={"l": 40, "r": 40, "t": 80, "b": 30})
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
 
@@ -206,7 +229,9 @@ def render_recommendations(recommendations: list[dict]) -> None:
 
 
 def render_technical_details(result: dict) -> None:
-    with st.expander("Detail teknis"):
+    with st.expander("Detail teknis model"):
+        confidence = result.get("model_confidence_pct")
+        st.write("Keyakinan model: -" if confidence is None else f"Keyakinan model: {confidence:.2f}%")
         st.caption(f"Model: {result.get('model_name', 'Model')}")
         st.write(f"BMI: {result.get('bmi')} ({result.get('kategori_bmi')})")
         st.subheader("Probabilitas per Kelas")
@@ -243,12 +268,22 @@ def render_summary(model_artifact: dict) -> None:
     result = st.session_state.prediction_result
     if result:
         st.subheader("Hasil Prediksi")
-        risk_label, risk_percentage = get_primary_probability(result)
-        st.metric("Kategori Risiko", risk_label)
-        st.metric("Persentase Risiko", "-" if risk_percentage is None else f"{risk_percentage:.2f}%")
-        render_risk_gauge(risk_label, risk_percentage)
+        scoring_label = result.get("scoring_label", "-")
+        model_risk_label = result.get("model_risk_label", result.get("risk_label", "-"))
+        result_cols = st.columns(2)
+        result_cols[0].metric("Skor Risiko", result.get("risk_score", "-"))
+        result_cols[1].metric("Kategori Risiko (Scoring)", scoring_label)
+        st.metric("Kategori Prediksi Model", model_risk_label)
+        tampilkan_gauge_status(model_risk_label)
+
+        if scoring_label != model_risk_label:
+            st.warning(
+                "Hasil prediksi model berbeda dengan kategori scoring. "
+                "Gunakan hasil ini sebagai estimasi dan lakukan pemeriksaan lebih lanjut."
+            )
+
         st.subheader("Keterangan Singkat")
-        st.write(get_risk_explanation(risk_label))
+        st.write(get_risk_explanation(scoring_label))
         render_recommendations(result.get("recommendations", []))
         render_technical_details(result)
 

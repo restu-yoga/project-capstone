@@ -5,12 +5,28 @@ Aplikasi ini menggunakan Streamlit untuk memprediksi tingkat risiko diabetes pad
 ## Fitur Aplikasi
 
 - Wizard input step-by-step dengan 13 pertanyaan.
-- Prediksi tingkat risiko diabetes menggunakan model `.pkl`.
+- Perhitungan skor risiko manual berbasis sistem scoring.
+- Prediksi tingkat risiko diabetes menggunakan model `.pkl` yang dilatih untuk mempelajari kategori scoring.
 - Perhitungan BMI otomatis dari berat badan dan tinggi badan.
-- Tampilan probabilitas per kelas jika model menyediakan `predict_proba()`.
+- Tampilan keyakinan model dari probabilitas tertinggi `predict_proba()`.
+- Detail probabilitas per kelas disimpan di expander teknis.
 - Rekomendasi personal berdasarkan hasil prediksi dan faktor risiko pengguna.
 - Tampilan gambar rekomendasi dari folder `assets/`.
 - Validasi path model, dataset, dan asset dari root project.
+
+## Sistem Scoring Risiko
+
+Kategori risiko utama ditentukan dari skor manual berbasis faktor genetik, klinis, dan gaya hidup. Threshold yang digunakan:
+
+| Skor Total | Kategori |
+|---:|---|
+| < 8 | Tidak Berisiko |
+| 8-13 | Sedang |
+| >= 14 | Tinggi |
+
+Model machine learning dilatih menggunakan label `Risk_Level` yang dibuat dari sistem scoring tersebut. Kolom `ID`, `Prediabetes`, `Diabetes_Type`, `Risk_Score`, dan `Risk_Level` tidak digunakan sebagai fitur input model untuk menghindari data leakage.
+
+Nilai **Keyakinan Model** adalah probabilitas tertinggi dari output `predict_proba()`. Nilai ini bukan probabilitas medis bahwa pengguna mengalami diabetes, melainkan tingkat keyakinan model terhadap kategori prediksi.
 
 ## Struktur Folder
 
@@ -139,6 +155,8 @@ Jalankan notebook ini jika ingin melatih ulang model. Pastikan dataset tersedia 
 models/model_xgboost_risk_level.pkl
 ```
 
+Notebook training membuat `Risk_Score` dan `Risk_Level` dari aturan scoring revisi, lalu melatih XGBoost dengan 12 fitur final tanpa kolom leakage.
+
 ## Menjalankan Notebook Inferensi
 
 Notebook inferensi tersedia di:
@@ -148,6 +166,16 @@ notebooks/Inferensi_Diabetes_Rekomendasi.ipynb
 ```
 
 Notebook tersebut menjadi referensi logic inferensi dan rekomendasi. Versi modular untuk aplikasi Streamlit berada di folder `src/`.
+
+## Menjalankan Test Scoring
+
+Test ringan untuk validasi scoring dapat dijalankan dari root project:
+
+```bash
+python -m unittest discover -s tests
+```
+
+Test mencakup contoh skor 7 yang harus menghasilkan kategori `Tidak Berisiko`.
 
 ## Troubleshooting
 
@@ -174,4 +202,4 @@ PowerShell tidak bisa activate venv
 
 ## Disclaimer Medis
 
-Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. Hasil prediksi bukan diagnosis medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan.
+Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. Hasil prediksi bukan diagnosis medis, dan keyakinan model bukan probabilitas medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan.
