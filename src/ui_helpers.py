@@ -55,26 +55,81 @@ STRESS_OPTIONS = [
     "Sangat sering stres",
 ]
 
-HELP_TEXT = {
-    "hba1c": "HbA1c menunjukkan rata-rata kadar gula darah dalam 2-3 bulan terakhir.",
-    "fasting_blood_sugar": "Gula darah puasa adalah kadar gula darah setelah tidak mengonsumsi kalori selama beberapa jam.",
-    "berat_kg": "Berat badan digunakan bersama tinggi badan untuk menghitung BMI.",
-    "tinggi_cm": "Tinggi badan digunakan bersama berat badan untuk menghitung BMI.",
-    "usia": "Usia pengguna dalam tahun.",
-    "pilihan_genetic": "Riwayat genetik atau keturunan dapat berkaitan dengan risiko diabetes.",
-    "family_history": "Apakah ada riwayat diabetes dalam keluarga?",
-    "physical_activity": "Tingkat aktivitas fisik harian.",
-    "dietary_habits": "Gambaran kebiasaan pola makan sehari-hari.",
-    "smoking": "Status kebiasaan merokok.",
-    "alcohol": "Status konsumsi alkohol.",
-    "pilihan_sleep": "Durasi tidur rata-rata per hari.",
-    "pilihan_stress": "Frekuensi atau tingkat stres yang dirasakan.",
+DISPLAY_LABELS = {
+    "hba1c": "HbA1c (%)",
+    "fasting_blood_sugar": "Gula Darah Puasa (mg/dL)",
+    "berat_kg": "Berat Badan (kg)",
+    "tinggi_cm": "Tinggi Badan (cm)",
+    "usia": "Usia (tahun)",
+    "pilihan_genetic": "Risiko Genetik",
+    "family_history": "Riwayat Diabetes Keluarga",
+    "physical_activity": "Aktivitas Fisik",
+    "dietary_habits": "Pola Makan",
+    "smoking": "Merokok",
+    "alcohol": "Konsumsi Alkohol",
+    "pilihan_sleep": "Durasi Tidur",
+    "pilihan_stress": "Tingkat Stres",
+}
+
+SUMMARY_LABELS = {
+    **DISPLAY_LABELS,
+    "bmi": "BMI",
+}
+
+QUESTION_TITLES = {
+    "hba1c": "HbA1c",
+    "fasting_blood_sugar": "Gula Darah Puasa",
+    "berat_kg": "Berat Badan",
+    "tinggi_cm": "Tinggi Badan",
+    "usia": "Usia",
+    "pilihan_genetic": "Risiko Genetik",
+    "family_history": "Riwayat Diabetes Keluarga",
+    "physical_activity": "Aktivitas Fisik",
+    "dietary_habits": "Pola Makan",
+    "smoking": "Merokok",
+    "alcohol": "Konsumsi Alkohol",
+    "pilihan_sleep": "Durasi Tidur",
+    "pilihan_stress": "Tingkat Stres",
+}
+
+INPUT_LABELS = {
+    "hba1c": "Pilih nilai HbA1c (%)",
+    "fasting_blood_sugar": "Pilih nilai gula darah puasa (mg/dL)",
+    "berat_kg": "Pilih berat badan (kg)",
+    "tinggi_cm": "Pilih tinggi badan (cm)",
+    "usia": "Pilih usia (tahun)",
+    "pilihan_genetic": "Pilih risiko genetik",
+    "family_history": "Pilih riwayat diabetes keluarga",
+    "physical_activity": "Pilih aktivitas fisik",
+    "dietary_habits": "Pilih pola makan",
+    "smoking": "Pilih status merokok",
+    "alcohol": "Pilih konsumsi alkohol",
+    "pilihan_sleep": "Pilih durasi tidur",
+    "pilihan_stress": "Pilih tingkat stres",
+}
+
+CAPTIONS = {
+    "hba1c": "HbA1c dihitung dalam satuan persen (%). Nilai ini menunjukkan rata-rata kadar gula darah dalam 2–3 bulan terakhir.",
+    "fasting_blood_sugar": "Gula darah puasa dihitung dalam satuan mg/dL. Nilai ini menunjukkan kadar gula darah setelah tidak mengonsumsi kalori selama beberapa jam.",
+    "berat_kg": "Berat badan diisi dalam satuan kilogram (kg) dan digunakan untuk menghitung BMI.",
+    "tinggi_cm": "Tinggi badan diisi dalam satuan centimeter (cm) dan digunakan untuk menghitung BMI.",
+    "usia": "Usia diisi dalam satuan tahun.",
+    "pilihan_genetic": "Pilih apakah terdapat faktor keturunan atau riwayat diabetes pada keluarga dekat.",
+    "family_history": "Pilih apakah terdapat riwayat diabetes dalam keluarga.",
+    "physical_activity": "Pilih tingkat aktivitas fisik harian, dari jarang bergerak sampai aktif berolahraga.",
+    "dietary_habits": "Pilih gambaran kebiasaan pola makan sehari-hari.",
+    "smoking": "Pilih apakah pengguna memiliki kebiasaan merokok.",
+    "alcohol": "Pilih apakah pengguna mengonsumsi alkohol.",
+    "pilihan_sleep": "Pilih durasi tidur rata-rata per hari.",
+    "pilihan_stress": "Pilih frekuensi atau tingkat stres yang dirasakan.",
+    "bmi": "BMI dihitung otomatis dalam satuan kg/m² dari berat badan dan tinggi badan.",
 }
 
 QUESTIONS = [
     {
         "key": "hba1c",
-        "label": "HbA1c",
+        "title": QUESTION_TITLES["hba1c"],
+        "label": INPUT_LABELS["hba1c"],
         "kind": "slider",
         "min": 4.0,
         "max": 10.0,
@@ -84,7 +139,8 @@ QUESTIONS = [
     },
     {
         "key": "fasting_blood_sugar",
-        "label": "Fasting Blood Sugar",
+        "title": QUESTION_TITLES["fasting_blood_sugar"],
+        "label": INPUT_LABELS["fasting_blood_sugar"],
         "kind": "slider",
         "min": 70,
         "max": 200,
@@ -93,7 +149,8 @@ QUESTIONS = [
     },
     {
         "key": "berat_kg",
-        "label": "Berat Badan",
+        "title": QUESTION_TITLES["berat_kg"],
+        "label": INPUT_LABELS["berat_kg"],
         "kind": "slider",
         "min": 30,
         "max": 150,
@@ -102,7 +159,8 @@ QUESTIONS = [
     },
     {
         "key": "tinggi_cm",
-        "label": "Tinggi Badan",
+        "title": QUESTION_TITLES["tinggi_cm"],
+        "label": INPUT_LABELS["tinggi_cm"],
         "kind": "slider",
         "min": 120,
         "max": 220,
@@ -111,7 +169,8 @@ QUESTIONS = [
     },
     {
         "key": "usia",
-        "label": "Usia",
+        "title": QUESTION_TITLES["usia"],
+        "label": INPUT_LABELS["usia"],
         "kind": "slider",
         "min": 15,
         "max": 25,
@@ -120,56 +179,64 @@ QUESTIONS = [
     },
     {
         "key": "pilihan_genetic",
-        "label": "Genetic Risk",
+        "title": QUESTION_TITLES["pilihan_genetic"],
+        "label": INPUT_LABELS["pilihan_genetic"],
         "kind": "select",
         "options": GENETIC_OPTIONS,
         "default": "Tidak ada",
     },
     {
         "key": "family_history",
-        "label": "Family History",
+        "title": QUESTION_TITLES["family_history"],
+        "label": INPUT_LABELS["family_history"],
         "kind": "select_map",
         "options": FAMILY_HISTORY_OPTIONS,
         "default": "Tidak",
     },
     {
         "key": "physical_activity",
-        "label": "Physical Activity",
+        "title": QUESTION_TITLES["physical_activity"],
+        "label": INPUT_LABELS["physical_activity"],
         "kind": "select_map",
         "options": PHYSICAL_ACTIVITY_OPTIONS,
         "default": "Moderate / aktivitas sedang",
     },
     {
         "key": "dietary_habits",
-        "label": "Dietary Habits",
+        "title": QUESTION_TITLES["dietary_habits"],
+        "label": INPUT_LABELS["dietary_habits"],
         "kind": "select_map",
         "options": DIETARY_HABITS_OPTIONS,
         "default": "Moderate / cukup",
     },
     {
         "key": "smoking",
-        "label": "Smoking",
+        "title": QUESTION_TITLES["smoking"],
+        "label": INPUT_LABELS["smoking"],
         "kind": "select_map",
         "options": YES_NO_OPTIONS,
         "default": "Tidak",
     },
     {
         "key": "alcohol",
-        "label": "Alcohol",
+        "title": QUESTION_TITLES["alcohol"],
+        "label": INPUT_LABELS["alcohol"],
         "kind": "select_map",
         "options": YES_NO_OPTIONS,
         "default": "Tidak",
     },
     {
         "key": "pilihan_sleep",
-        "label": "Sleep",
+        "title": QUESTION_TITLES["pilihan_sleep"],
+        "label": INPUT_LABELS["pilihan_sleep"],
         "kind": "select",
         "options": SLEEP_OPTIONS,
         "default": "7-8 jam (ideal)",
     },
     {
         "key": "pilihan_stress",
-        "label": "Stress",
+        "title": QUESTION_TITLES["pilihan_stress"],
+        "label": INPUT_LABELS["pilihan_stress"],
         "kind": "select",
         "options": STRESS_OPTIONS,
         "default": "Kadang-kadang stres",
@@ -200,7 +267,11 @@ def get_default_answers() -> dict[str, Any]:
 def normalize_answer_value(question: dict[str, Any], answer: Any) -> Any:
     if question["kind"] != "select_map":
         return answer
-    return question["options"][answer]
+    if answer in question["options"]:
+        return question["options"][answer]
+    if answer in question["options"].values():
+        return answer
+    return question["options"][question["default"]]
 
 
 def make_prediction_payload(answers: dict[str, Any]) -> dict[str, Any]:
@@ -211,24 +282,44 @@ def make_prediction_payload(answers: dict[str, Any]) -> dict[str, Any]:
     return payload
 
 
+def label_from_options(options: OrderedDict[str, int], value: Any) -> str:
+    if value in options:
+        return str(value)
+
+    for label, mapped_value in options.items():
+        if value == mapped_value:
+            return label
+
+    return str(value)
+
+
 def make_summary_dataframe(answers: dict[str, Any]) -> pd.DataFrame:
     payload = make_prediction_payload(answers)
     bmi, kategori_bmi = hitung_bmi(payload["berat_kg"], payload["tinggi_cm"])
 
-    rows = [
-        ("HbA1c", f"{payload['hba1c']:.1f}%"),
-        ("Fasting Blood Sugar", f"{payload['fasting_blood_sugar']} mg/dL"),
-        ("Berat Badan", f"{payload['berat_kg']} kg"),
-        ("Tinggi Badan", f"{payload['tinggi_cm']} cm"),
-        ("BMI", f"{bmi} ({kategori_bmi})"),
-        ("Usia", f"{payload['usia']} tahun"),
-        ("Genetic Risk", answers["pilihan_genetic"]),
-        ("Family History", answers["family_history"]),
-        ("Physical Activity", answers["physical_activity"]),
-        ("Dietary Habits", answers["dietary_habits"]),
-        ("Smoking", answers["smoking"]),
-        ("Alcohol", answers["alcohol"]),
-        ("Sleep", answers["pilihan_sleep"]),
-        ("Stress", answers["pilihan_stress"]),
+    summary_rows = [
+        {"Fitur": SUMMARY_LABELS["hba1c"], "Nilai": f"{payload['hba1c']:.1f}%"},
+        {"Fitur": SUMMARY_LABELS["fasting_blood_sugar"], "Nilai": f"{payload['fasting_blood_sugar']} mg/dL"},
+        {"Fitur": SUMMARY_LABELS["berat_kg"], "Nilai": f"{payload['berat_kg']} kg"},
+        {"Fitur": SUMMARY_LABELS["tinggi_cm"], "Nilai": f"{payload['tinggi_cm']} cm"},
+        {"Fitur": SUMMARY_LABELS["bmi"], "Nilai": f"{bmi:.2f} kg/m² ({kategori_bmi})"},
+        {"Fitur": SUMMARY_LABELS["usia"], "Nilai": f"{payload['usia']} tahun"},
+        {"Fitur": SUMMARY_LABELS["pilihan_genetic"], "Nilai": answers["pilihan_genetic"]},
+        {
+            "Fitur": SUMMARY_LABELS["family_history"],
+            "Nilai": label_from_options(FAMILY_HISTORY_OPTIONS, answers["family_history"]),
+        },
+        {
+            "Fitur": SUMMARY_LABELS["physical_activity"],
+            "Nilai": label_from_options(PHYSICAL_ACTIVITY_OPTIONS, answers["physical_activity"]),
+        },
+        {
+            "Fitur": SUMMARY_LABELS["dietary_habits"],
+            "Nilai": label_from_options(DIETARY_HABITS_OPTIONS, answers["dietary_habits"]),
+        },
+        {"Fitur": SUMMARY_LABELS["smoking"], "Nilai": label_from_options(YES_NO_OPTIONS, answers["smoking"])},
+        {"Fitur": SUMMARY_LABELS["alcohol"], "Nilai": label_from_options(YES_NO_OPTIONS, answers["alcohol"])},
+        {"Fitur": SUMMARY_LABELS["pilihan_sleep"], "Nilai": answers["pilihan_sleep"]},
+        {"Fitur": SUMMARY_LABELS["pilihan_stress"], "Nilai": answers["pilihan_stress"]},
     ]
-    return pd.DataFrame(rows, columns=["Input", "Nilai"])
+    return pd.DataFrame(summary_rows, columns=["Fitur", "Nilai"])
