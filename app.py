@@ -10,6 +10,7 @@ from src.inference import DEFAULT_DATASET_PATH, DEFAULT_MODEL_PATH, load_dataset
 from src.recommendations import resolve_asset_path
 from src.ui_helpers import (
     CAPTIONS,
+    CATEGORY_EXPLANATIONS,
     QUESTIONS,
     get_default_answers,
     make_prediction_payload,
@@ -61,6 +62,15 @@ def reset_wizard() -> None:
     st.session_state.prediction_result = None
 
 
+def show_category_explanation(feature_key: str) -> None:
+    explanation_rows = CATEGORY_EXPLANATIONS.get(feature_key)
+    if not explanation_rows:
+        return
+
+    with st.expander("Lihat penjelasan kategori"):
+        st.table(pd.DataFrame(explanation_rows))
+
+
 def render_question(question: dict) -> None:
     key = question["key"]
     widget_key = f"input_{key}"
@@ -103,6 +113,7 @@ def render_question(question: dict) -> None:
         )
 
     st.session_state.answers[key] = value
+    show_category_explanation(key)
 
 
 def render_navigation(is_summary: bool = False) -> None:
