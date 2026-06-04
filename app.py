@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 from src.inference import DEFAULT_DATASET_PATH, DEFAULT_MODEL_PATH, load_dataset, load_model_artifact, prediksi_diabetes
@@ -21,6 +22,18 @@ DISCLAIMER = (
     "Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. "
     "Hasil prediksi bukan diagnosis medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan."
 )
+RISK_COLORS = {
+    "Tidak Berisiko": "#16a34a",
+    "Rendah": "#16a34a",
+    "Sedang": "#facc15",
+    "Tinggi": "#dc2626",
+}
+RISK_EXPLANATIONS = {
+    "Tidak Berisiko": "Berdasarkan data yang Anda isi, risiko diabetes saat ini tergolong rendah.",
+    "Rendah": "Berdasarkan data yang Anda isi, risiko diabetes saat ini tergolong rendah.",
+    "Sedang": "Berdasarkan data yang Anda isi, ada beberapa faktor yang perlu mulai diperhatikan.",
+    "Tinggi": "Berdasarkan data yang Anda isi, risiko diabetes tergolong tinggi dan sebaiknya segera ditindaklanjuti.",
+}
 
 
 st.set_page_config(
@@ -131,6 +144,54 @@ def render_probabilities(probabilities: dict[str, float]) -> None:
     st.dataframe(probability_df, hide_index=True, width="stretch")
 
 
+def get_primary_probability(result: dict) -> tuple[str, float | None]:
+    probabilities = result.get("proba", {})
+    if probabilities:
+        label, probability = max(probabilities.items(), key=lambda item: item[1])
+        return label, probability * 100
+
+    risk_label = result.get("risk_label", "-")
+    return risk_label, result.get("risk_pct")
+
+
+def get_risk_color(risk_label: str) -> str:
+    return RISK_COLORS.get(risk_label, "#64748b")
+
+
+def get_risk_explanation(risk_label: str) -> str:
+    return RISK_EXPLANATIONS.get(
+        risk_label,
+        "Hasil ini menunjukkan kategori risiko berdasarkan data yang Anda isi.",
+    )
+
+
+def render_risk_gauge(risk_label: str, risk_percentage: float | None) -> None:
+    value = 0 if risk_percentage is None else risk_percentage
+    color = get_risk_color(risk_label)
+    fig = go.Figure(
+        go.Indicator(
+            mode="gauge+number",
+            value=value,
+            number={"suffix": "%", "valueformat": ".2f", "font": {"size": 42, "color": color}},
+            title={"text": f"Kategori Risiko: {risk_label}", "font": {"size": 20, "color": color}},
+            gauge={
+                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "#94a3b8"},
+                "bar": {"color": color, "thickness": 0.28},
+                "bgcolor": "white",
+                "borderwidth": 1,
+                "bordercolor": "#e2e8f0",
+                "steps": [
+                    {"range": [0, 40], "color": "#dcfce7"},
+                    {"range": [40, 70], "color": "#fef9c3"},
+                    {"range": [70, 100], "color": "#fee2e2"},
+                ],
+            },
+        )
+    )
+    fig.update_layout(height=280, margin={"l": 24, "r": 24, "t": 48, "b": 16})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+
 def render_recommendations(recommendations: list[dict]) -> None:
     st.subheader("Rekomendasi Personal")
     for recommendation in recommendations:
@@ -138,14 +199,18 @@ def render_recommendations(recommendations: list[dict]) -> None:
         text_col, image_col = st.columns([2, 1])
         with text_col:
             st.write(recommendation["text"])
-            feature = recommendation.get("feature")
-            importance = recommendation.get("importance", 0)
-            if feature and importance:
-                st.caption(f"Faktor terkait: {feature} | importance: {importance:.4f}")
         with image_col:
             if image_path is not None:
                 st.image(str(image_path), width=160)
         st.divider()
+
+
+def render_technical_details(result: dict) -> None:
+    with st.expander("Detail teknis"):
+        st.caption(f"Model: {result.get('model_name', 'Model')}")
+        st.write(f"BMI: {result.get('bmi')} ({result.get('kategori_bmi')})")
+        st.subheader("Probabilitas per Kelas")
+        render_probabilities(result.get("proba", {}))
 
 
 def render_summary(model_artifact: dict) -> None:
@@ -178,16 +243,14 @@ def render_summary(model_artifact: dict) -> None:
     result = st.session_state.prediction_result
     if result:
         st.subheader("Hasil Prediksi")
-        metric_cols = st.columns(3)
-        metric_cols[0].metric("Risk Level", result.get("risk_label", "-"))
-        risk_pct = result.get("risk_pct")
-        metric_cols[1].metric("Diabetes Risk", "-" if risk_pct is None else f"{risk_pct:.1f}%")
-        metric_cols[2].metric("BMI", f"{result.get('bmi')} ({result.get('kategori_bmi')})")
-
-        st.caption(f"Model: {result.get('model_name', 'Model')}")
-        st.subheader("Probabilitas per Kelas")
-        render_probabilities(result.get("proba", {}))
+        risk_label, risk_percentage = get_primary_probability(result)
+        st.metric("Kategori Risiko", risk_label)
+        st.metric("Persentase Risiko", "-" if risk_percentage is None else f"{risk_percentage:.2f}%")
+        render_risk_gauge(risk_label, risk_percentage)
+        st.subheader("Keterangan Singkat")
+        st.write(get_risk_explanation(risk_label))
         render_recommendations(result.get("recommendations", []))
+        render_technical_details(result)
 
 
 def main() -> None:
