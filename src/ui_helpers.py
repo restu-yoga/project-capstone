@@ -20,17 +20,17 @@ FAMILY_HISTORY_OPTIONS = OrderedDict(
 
 PHYSICAL_ACTIVITY_OPTIONS = OrderedDict(
     [
-        ("Sedentary / jarang aktivitas fisik", 0),
-        ("Moderate / aktivitas sedang", 1),
-        ("Active / aktif berolahraga", 2),
+        ("Jarang atau tidak pernah berolahraga", 0),
+        ("Berolahraga sesekali (1-3 kali/minggu)", 1),
+        ("Rutin berolahraga (>=4 kali/minggu)", 2),
     ]
 )
 
 DIETARY_HABITS_OPTIONS = OrderedDict(
     [
-        ("Unhealthy / kurang sehat", 0),
-        ("Moderate / cukup", 1),
-        ("Healthy / sehat", 2),
+        ("Kurang sehat", 0),
+        ("Cukup sehat", 1),
+        ("Sehat", 2),
     ]
 )
 
@@ -62,7 +62,7 @@ DISPLAY_LABELS = {
     "tinggi_cm": "Tinggi Badan (cm)",
     "usia": "Usia (tahun)",
     "pilihan_genetic": "Risiko Genetik",
-    "family_history": "Riwayat Diabetes Keluarga",
+    "family_history": "Riwayat Diabetes Keluarga Inti",
     "physical_activity": "Aktivitas Fisik",
     "dietary_habits": "Pola Makan",
     "smoking": "Merokok",
@@ -83,7 +83,7 @@ QUESTION_TITLES = {
     "tinggi_cm": "Tinggi Badan",
     "usia": "Usia",
     "pilihan_genetic": "Risiko Genetik",
-    "family_history": "Riwayat Diabetes Keluarga",
+    "family_history": "Riwayat Diabetes Keluarga Inti",
     "physical_activity": "Aktivitas Fisik",
     "dietary_habits": "Pola Makan",
     "smoking": "Merokok",
@@ -99,7 +99,7 @@ INPUT_LABELS = {
     "tinggi_cm": "Pilih tinggi badan (cm)",
     "usia": "Pilih usia (tahun)",
     "pilihan_genetic": "Pilih risiko genetik",
-    "family_history": "Pilih riwayat diabetes keluarga",
+    "family_history": "Pilih riwayat diabetes keluarga inti",
     "physical_activity": "Pilih aktivitas fisik",
     "dietary_habits": "Pilih pola makan",
     "smoking": "Pilih status merokok",
@@ -127,119 +127,164 @@ CAPTIONS = {
 
 CAPTIONS.update(
     {
-        "hba1c": "HbA1c menggambarkan rata-rata kadar gula darah dalam beberapa bulan terakhir.",
-        "fasting_blood_sugar": "Gula darah puasa adalah kadar gula darah setelah tidak mengonsumsi makanan atau minuman berkalori selama beberapa jam.",
-        "berat_kg": "Berat badan digunakan bersama tinggi badan untuk menghitung BMI.",
-        "tinggi_cm": "Tinggi badan digunakan bersama berat badan untuk menghitung BMI.",
-        "bmi": "BMI adalah indeks massa tubuh yang dihitung otomatis dari berat badan dan tinggi badan.",
+        "hba1c": "HbA1c menunjukkan rata-rata kadar gula darah dalam 2-3 bulan terakhir. Jika Anda tidak mengetahui nilai pastinya, gunakan nilai default yang tersedia.",
+        "fasting_blood_sugar": "Gula darah puasa adalah kadar gula darah setelah tidak mengonsumsi kalori selama beberapa jam. Jika Anda tidak mengetahui nilai pastinya, gunakan nilai default yang tersedia.",
+        "berat_kg": "Masukkan berat badan dalam kilogram. Data ini digunakan untuk menghitung BMI.",
+        "tinggi_cm": "Masukkan tinggi badan dalam centimeter. Data ini digunakan untuk menghitung BMI.",
+        "bmi": "BMI dihitung otomatis dari berat badan dan tinggi badan.",
     }
 )
 
 CATEGORY_EXPLANATIONS = {
-    "physical_activity": [
-        {
-            "Kategori": "Sedentary / jarang aktivitas fisik",
-            "Deskripsi": "Lebih banyak duduk atau jarang melakukan aktivitas fisik dalam kegiatan sehari-hari.",
-        },
-        {
-            "Kategori": "Moderate / aktivitas sedang",
-            "Deskripsi": "Cukup aktif dalam kegiatan sehari-hari dan sesekali melakukan olahraga atau aktivitas fisik.",
-        },
-        {
-            "Kategori": "Active / aktif berolahraga",
-            "Deskripsi": "Aktif bergerak dan melakukan olahraga atau aktivitas fisik secara rutin.",
-        },
-    ],
-    "dietary_habits": [
-        {
-            "Kategori": "Unhealthy / kurang sehat",
-            "Deskripsi": "Sering mengonsumsi makanan tinggi gula, tinggi lemak, gorengan, atau makanan cepat saji.",
-        },
-        {
-            "Kategori": "Moderate / cukup",
-            "Deskripsi": "Pola makan cukup beragam, tetapi masih sesekali mengonsumsi makanan kurang sehat.",
-        },
-        {
-            "Kategori": "Healthy / sehat",
-            "Deskripsi": "Lebih sering mengonsumsi makanan bergizi seimbang seperti sayur, buah, protein, dan membatasi makanan tinggi gula atau lemak.",
-        },
-    ],
-    "pilihan_sleep": [
-        {
-            "Kategori": "Kurang dari 5 jam",
-            "Deskripsi": "Durasi tidur sangat pendek dan tubuh mungkin tidak mendapatkan waktu istirahat yang cukup.",
-        },
-        {
-            "Kategori": "5-6 jam",
-            "Deskripsi": "Durasi tidur masih relatif pendek bagi sebagian orang.",
-        },
-        {
-            "Kategori": "7-8 jam (ideal)",
-            "Deskripsi": "Durasi tidur yang umumnya cukup untuk mendukung pemulihan tubuh.",
-        },
-        {
-            "Kategori": "Lebih dari 8 jam",
-            "Deskripsi": "Durasi tidur lebih panjang dari rata-rata.",
-        },
-    ],
-    "pilihan_stress": [
-        {
-            "Kategori": "Jarang stres",
-            "Deskripsi": "Hampir tidak pernah merasa tertekan atau cemas dalam aktivitas sehari-hari.",
-        },
-        {
-            "Kategori": "Kadang-kadang stres",
-            "Deskripsi": "Sesekali merasa stres saat menghadapi tugas, pekerjaan, atau masalah tertentu, tetapi masih dapat mengatasinya dengan baik.",
-        },
-        {
-            "Kategori": "Sering stres",
-            "Deskripsi": "Cukup sering merasa tertekan, cemas, atau kewalahan dalam menjalani aktivitas sehari-hari.",
-        },
-        {
-            "Kategori": "Sangat sering stres",
-            "Deskripsi": "Hampir setiap hari merasa stres atau tekanan yang cukup berat sehingga memengaruhi aktivitas dan konsentrasi.",
-        },
-    ],
-    "pilihan_genetic": [
-        {
-            "Kategori": "Tidak ada",
-            "Deskripsi": "Tidak diketahui adanya diabetes pada ayah, ibu, atau saudara kandung.",
-        },
-        {
-            "Kategori": "Ada (ayah/ibu/saudara kandung)",
-            "Deskripsi": "Terdapat anggota keluarga dekat yang memiliki riwayat diabetes.",
-        },
-    ],
-    "family_history": [
-        {
-            "Kategori": "Tidak",
-            "Deskripsi": "Tidak terdapat riwayat diabetes yang diketahui dalam keluarga.",
-        },
-        {
-            "Kategori": "Ya",
-            "Deskripsi": "Terdapat anggota keluarga yang pernah didiagnosis diabetes.",
-        },
-    ],
-    "smoking": [
-        {
-            "Kategori": "Tidak",
-            "Deskripsi": "Tidak memiliki kebiasaan merokok.",
-        },
-        {
-            "Kategori": "Ya",
-            "Deskripsi": "Memiliki kebiasaan merokok, baik secara rutin maupun sesekali.",
-        },
-    ],
-    "alcohol": [
-        {
-            "Kategori": "Tidak",
-            "Deskripsi": "Tidak mengonsumsi minuman beralkohol.",
-        },
-        {
-            "Kategori": "Ya",
-            "Deskripsi": "Mengonsumsi minuman beralkohol, baik secara rutin maupun sesekali.",
-        },
-    ],
+    "physical_activity": {
+        "title": "Aktivitas Fisik",
+        "subtitle": "Pilih kategori yang paling mendekati kebiasaan olahraga Anda.",
+        "rows": [
+            {
+                "Kategori": "Jarang atau tidak pernah berolahraga",
+                "Deskripsi": "Aktivitas fisik sangat sedikit, lebih banyak duduk, dan jarang melakukan olahraga.",
+            },
+            {
+                "Kategori": "Berolahraga sesekali (1-3 kali/minggu)",
+                "Deskripsi": "Melakukan aktivitas fisik atau olahraga ringan beberapa kali dalam seminggu.",
+            },
+            {
+                "Kategori": "Rutin berolahraga (>=4 kali/minggu)",
+                "Deskripsi": "Melakukan olahraga atau aktivitas fisik secara rutin hampir setiap minggu.",
+            },
+        ],
+    },
+    "dietary_habits": {
+        "title": "Pola Makan",
+        "subtitle": "Pilih kategori yang paling menggambarkan kebiasaan makan sehari-hari.",
+        "rows": [
+            {
+                "Kategori": "Kurang sehat",
+                "Deskripsi": "Sering mengonsumsi makanan tinggi gula, makanan cepat saji, gorengan, atau makanan tinggi lemak.",
+            },
+            {
+                "Kategori": "Cukup sehat",
+                "Deskripsi": "Pola makan cukup beragam, tetapi masih sesekali mengonsumsi makanan kurang sehat.",
+            },
+            {
+                "Kategori": "Sehat",
+                "Deskripsi": "Lebih sering mengonsumsi makanan bergizi seimbang seperti sayur, buah, protein, dan membatasi makanan tinggi gula atau lemak.",
+            },
+        ],
+    },
+    "pilihan_sleep": {
+        "title": "Durasi Tidur",
+        "subtitle": "Gunakan rata-rata durasi tidur Anda dalam satu hari.",
+        "rows": [
+            {
+                "Kategori": "Kurang dari 5 jam",
+                "Deskripsi": "Durasi tidur sangat pendek dan tubuh mungkin tidak mendapatkan waktu istirahat yang cukup.",
+            },
+            {
+                "Kategori": "5-6 jam",
+                "Deskripsi": "Durasi tidur masih relatif pendek bagi sebagian orang.",
+            },
+            {
+                "Kategori": "7-8 jam (ideal)",
+                "Deskripsi": "Durasi tidur yang umumnya cukup untuk mendukung pemulihan tubuh.",
+            },
+            {
+                "Kategori": "Lebih dari 8 jam",
+                "Deskripsi": "Durasi tidur lebih panjang dari rata-rata.",
+            },
+        ],
+    },
+    "pilihan_stress": {
+        "title": "Tingkat Stres",
+        "subtitle": "Pilih kondisi yang paling sering Anda rasakan akhir-akhir ini.",
+        "rows": [
+            {
+                "Kategori": "Jarang stres",
+                "Deskripsi": "Hampir tidak pernah merasa tertekan atau cemas dalam aktivitas sehari-hari.",
+            },
+            {
+                "Kategori": "Kadang-kadang stres",
+                "Deskripsi": "Sesekali merasa stres saat menghadapi tugas, pekerjaan, atau masalah tertentu, tetapi masih dapat mengatasinya dengan baik.",
+            },
+            {
+                "Kategori": "Sering stres",
+                "Deskripsi": "Cukup sering merasa tertekan, cemas, atau kewalahan dalam menjalani aktivitas sehari-hari.",
+            },
+            {
+                "Kategori": "Sangat sering stres",
+                "Deskripsi": "Hampir setiap hari merasa stres atau tekanan yang cukup berat sehingga memengaruhi aktivitas dan konsentrasi.",
+            },
+        ],
+    },
+    "pilihan_genetic": {
+        "title": "Risiko Genetik",
+        "subtitle": "Gunakan informasi keluarga dekat yang Anda ketahui.",
+        "rows": [
+            {
+                "Kategori": "Tidak ada",
+                "Deskripsi": "Tidak diketahui adanya diabetes pada ayah, ibu, atau saudara kandung.",
+            },
+            {
+                "Kategori": "Ada (ayah/ibu/saudara kandung)",
+                "Deskripsi": "Terdapat anggota keluarga dekat yang memiliki riwayat diabetes.",
+            },
+        ],
+    },
+    "family_history": {
+        "title": "Riwayat Diabetes Keluarga Inti",
+        "subtitle": "(Ayah, Ibu, Saudara Kandung)",
+        "rows": [
+            {
+                "Kategori": "Tidak",
+                "Deskripsi": "Tidak ada riwayat diabetes pada ayah, ibu, atau saudara kandung.",
+            },
+            {
+                "Kategori": "Ya",
+                "Deskripsi": "Terdapat riwayat diabetes pada ayah, ibu, atau saudara kandung.",
+            },
+        ],
+        "extra_title": "Riwayat Diabetes Keluarga Besar",
+        "extra_subtitle": "(Kakek, Nenek, Paman, Bibi, Sepupu, dan Kerabat Lainnya)",
+        "extra_note": "Informasi keluarga besar hanya sebagai panduan edukatif dan tidak menjadi input tambahan model.",
+        "extra_rows": [
+            {
+                "Kategori": "Tidak",
+                "Deskripsi": "Tidak ada riwayat diabetes pada anggota keluarga besar.",
+            },
+            {
+                "Kategori": "Ya",
+                "Deskripsi": "Terdapat riwayat diabetes pada anggota keluarga besar.",
+            },
+        ],
+    },
+    "smoking": {
+        "title": "Merokok",
+        "subtitle": "Pilih berdasarkan kebiasaan merokok Anda saat ini.",
+        "rows": [
+            {
+                "Kategori": "Tidak",
+                "Deskripsi": "Tidak memiliki kebiasaan merokok.",
+            },
+            {
+                "Kategori": "Ya",
+                "Deskripsi": "Memiliki kebiasaan merokok, baik secara rutin maupun sesekali.",
+            },
+        ],
+    },
+    "alcohol": {
+        "title": "Konsumsi Alkohol",
+        "subtitle": "Pilih berdasarkan kebiasaan konsumsi alkohol Anda saat ini.",
+        "rows": [
+            {
+                "Kategori": "Tidak",
+                "Deskripsi": "Tidak mengonsumsi minuman beralkohol.",
+            },
+            {
+                "Kategori": "Ya",
+                "Deskripsi": "Mengonsumsi minuman beralkohol, baik secara rutin maupun sesekali.",
+            },
+        ],
+    },
 }
 
 QUESTIONS = [
@@ -316,7 +361,7 @@ QUESTIONS = [
         "label": INPUT_LABELS["physical_activity"],
         "kind": "select_map",
         "options": PHYSICAL_ACTIVITY_OPTIONS,
-        "default": "Moderate / aktivitas sedang",
+        "default": "Berolahraga sesekali (1-3 kali/minggu)",
     },
     {
         "key": "dietary_habits",
@@ -324,7 +369,7 @@ QUESTIONS = [
         "label": INPUT_LABELS["dietary_habits"],
         "kind": "select_map",
         "options": DIETARY_HABITS_OPTIONS,
-        "default": "Moderate / cukup",
+        "default": "Cukup sehat",
     },
     {
         "key": "smoking",

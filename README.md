@@ -4,11 +4,13 @@ Aplikasi ini menggunakan Streamlit untuk memprediksi tingkat risiko diabetes pad
 
 ## Fitur Aplikasi
 
-- Wizard input step-by-step dengan 13 pertanyaan.
+- Pengisian data bertahap dengan 13 pertanyaan.
+- Fitur klinis memiliki nilai default jika pengguna tidak mengetahui nilai pastinya.
 - Perhitungan skor risiko manual berbasis sistem scoring.
 - Prediksi tingkat risiko diabetes menggunakan model `.pkl` yang dilatih untuk mempelajari kategori scoring.
 - Perhitungan BMI otomatis dari berat badan dan tinggi badan.
-- Tampilan keyakinan model dari probabilitas tertinggi `predict_proba()`.
+- Gauge estimasi tingkat risiko diabetes dari probabilitas model untuk kelas berisiko.
+- Skor risiko dan keyakinan model disimpan di detail teknis.
 - Detail probabilitas per kelas disimpan di expander teknis.
 - Rekomendasi personal berdasarkan hasil prediksi dan faktor risiko pengguna.
 - Tampilan gambar rekomendasi dari folder `assets/`.
@@ -26,7 +28,9 @@ Kategori risiko utama ditentukan dari skor manual berbasis faktor genetik, klini
 
 Model machine learning dilatih menggunakan label `Risk_Level` yang dibuat dari sistem scoring tersebut. Kolom `ID`, `Prediabetes`, `Diabetes_Type`, `Risk_Score`, dan `Risk_Level` tidak digunakan sebagai fitur input model untuk menghindari data leakage.
 
-Nilai **Keyakinan Model** adalah probabilitas tertinggi dari output `predict_proba()`. Nilai ini bukan probabilitas medis bahwa pengguna mengalami diabetes, melainkan tingkat keyakinan model terhadap kategori prediksi.
+Gauge **Estimasi Tingkat Risiko Diabetes** dihitung dari probabilitas model untuk kelas `Sedang` dan `Tinggi`. Nilai ini adalah estimasi model berdasarkan data yang dimasukkan, bukan diagnosis medis.
+
+Skor risiko, kategori scoring, keyakinan model, dan probabilitas per kelas tetap tersedia di bagian `Detail teknis model` agar tidak mengganggu tampilan utama untuk pengguna awam.
 
 ## Struktur Folder
 
@@ -135,6 +139,8 @@ streamlit run app.py
 
 Aplikasi akan membuka browser lokal. Isi pertanyaan satu per satu, cek ringkasan input, lalu klik tombol `Prediksi`.
 
+Jika pengguna tidak mengetahui nilai klinis seperti HbA1c atau gula darah puasa, gunakan nilai default yang sudah disediakan aplikasi. Nilai tersebut hanya membantu proses estimasi dan bukan pengganti pemeriksaan medis.
+
 BMI tidak diisi manual oleh pengguna. BMI dihitung otomatis menggunakan:
 
 ```text
@@ -202,4 +208,4 @@ PowerShell tidak bisa activate venv
 
 ## Disclaimer Medis
 
-Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. Hasil prediksi bukan diagnosis medis, dan keyakinan model bukan probabilitas medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan.
+Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. Persentase pada gauge adalah estimasi model, bukan diagnosis medis. Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan.

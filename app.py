@@ -21,14 +21,14 @@ from src.ui_helpers import (
 ASSETS_DIR = Path("assets")
 DISCLAIMER = (
     "Aplikasi ini hanya memberikan estimasi risiko berbasis data dan sistem scoring. "
-    "Hasil prediksi bukan diagnosis medis, dan keyakinan model bukan probabilitas medis. "
+    "Persentase pada gauge bukan diagnosis medis. "
     "Pemeriksaan dan diagnosis diabetes tetap harus dilakukan oleh tenaga kesehatan."
 )
 RISK_EXPLANATIONS = {
-    "Tidak Berisiko": "Berdasarkan data yang Anda isi, risiko diabetes saat ini tergolong rendah.",
-    "Rendah": "Berdasarkan data yang Anda isi, risiko diabetes saat ini tergolong rendah.",
-    "Sedang": "Berdasarkan data yang Anda isi, ada beberapa faktor yang perlu mulai diperhatikan.",
-    "Tinggi": "Berdasarkan data yang Anda isi, risiko diabetes tergolong tinggi dan sebaiknya segera ditindaklanjuti.",
+    "Tidak Berisiko": "Berdasarkan data yang Anda isi, sistem memperkirakan risiko diabetes Anda berada pada kategori Tidak Berisiko.",
+    "Rendah": "Berdasarkan data yang Anda isi, sistem memperkirakan risiko diabetes Anda berada pada kategori rendah.",
+    "Sedang": "Berdasarkan data yang Anda isi, sistem memperkirakan risiko diabetes Anda berada pada kategori Sedang.",
+    "Tinggi": "Berdasarkan data yang Anda isi, sistem memperkirakan risiko diabetes Anda berada pada kategori Tinggi.",
 }
 st.set_page_config(
     page_title="Prediksi Risiko Diabetes",
@@ -56,19 +56,31 @@ def init_session_state() -> None:
         st.session_state.prediction_result = None
 
 
-def reset_wizard() -> None:
+def reset_form() -> None:
     st.session_state.step = 0
     st.session_state.answers = get_default_answers()
     st.session_state.prediction_result = None
 
 
 def show_category_explanation(feature_key: str) -> None:
-    explanation_rows = CATEGORY_EXPLANATIONS.get(feature_key)
-    if not explanation_rows:
+    explanation = CATEGORY_EXPLANATIONS.get(feature_key)
+    if not explanation:
         return
 
-    with st.expander("Lihat penjelasan kategori"):
-        st.table(pd.DataFrame(explanation_rows))
+    with st.expander("Panduan Memilih Kategori", expanded=True):
+        st.info("Gunakan panduan berikut untuk memilih kategori yang paling sesuai dengan kondisi Anda.")
+        st.markdown(f"**{explanation['title']}**")
+        if explanation.get("subtitle"):
+            st.caption(explanation["subtitle"])
+        st.table(pd.DataFrame(explanation["rows"]))
+
+        if explanation.get("extra_rows"):
+            st.markdown(f"**{explanation['extra_title']}**")
+            if explanation.get("extra_subtitle"):
+                st.caption(explanation["extra_subtitle"])
+            st.table(pd.DataFrame(explanation["extra_rows"]))
+            if explanation.get("extra_note"):
+                st.caption(explanation["extra_note"])
 
 
 def render_question(question: dict) -> None:
@@ -127,7 +139,7 @@ def render_navigation(is_summary: bool = False) -> None:
 
     with reset_col:
         if st.button("Reset", width="stretch"):
-            reset_wizard()
+            reset_form()
             st.rerun()
 
     with next_col:
@@ -155,69 +167,45 @@ def get_risk_explanation(risk_label: str) -> str:
     )
 
 
-def tampilkan_gauge_status(prediction_label: str) -> None:
-    status_config = {
-        "Tidak Berisiko": {
-            "value": 16.67,
-            "title": "Tidak Berisiko",
-        },
-        "Sedang": {
-            "value": 50,
-            "title": "Risiko Sedang",
-        },
-        "Tinggi": {
-            "value": 83.33,
-            "title": "Risiko Tinggi",
-        },
-    }
-    config = status_config.get(
-        prediction_label,
-        {
-            "value": 0,
-            "title": prediction_label,
-        },
-    )
+def calculate_diabetes_risk_estimate(probabilities: dict[str, float]) -> float | None:
+    if not probabilities:
+        return None
+
+    moderate_probability = probabilities.get("Sedang")
+    high_probability = probabilities.get("Tinggi")
+    if moderate_probability is not None or high_probability is not None:
+        return round(((moderate_probability or 0) + (high_probability or 0)) * 100, 2)
+
+    return round(max(probabilities.values()) * 100, 2)
+
+
+def render_risk_estimate_gauge(estimate_pct: float | None) -> None:
+    value = 0 if estimate_pct is None else estimate_pct
     fig = go.Figure(
         go.Indicator(
-            mode="gauge",
-            value=config["value"],
+            mode="gauge+number",
+            value=value,
+            number={"suffix": "%", "valueformat": ".2f"},
             title={
-                "text": f"Status Risiko Prediksi<br><b>{config['title']}</b>",
+                "text": "Estimasi Tingkat Risiko Diabetes",
                 "font": {"size": 24},
             },
             gauge={
                 "axis": {
                     "range": [0, 100],
-                    "tickvals": [16.67, 50, 83.33],
-                    "ticktext": [
-                        "Tidak Berisiko",
-                        "Sedang",
-                        "Tinggi",
-                    ],
+                    "tickvals": [0, 33, 66, 100],
+                    "ticktext": ["0%", "33%", "66%", "100%"],
                 },
-                "bar": {
-                    "thickness": 0.25,
-                },
+                "bar": {"color": "#2563eb", "thickness": 0.25},
                 "steps": [
-                    {
-                        "range": [0, 33.33],
-                        "color": "#D1FAE5",
-                    },
-                    {
-                        "range": [33.33, 66.67],
-                        "color": "#FEF3C7",
-                    },
-                    {
-                        "range": [66.67, 100],
-                        "color": "#FEE2E2",
-                    },
+                    {"range": [0, 33], "color": "#D1FAE5"},
+                    {"range": [33, 66], "color": "#FEF3C7"},
+                    {"range": [66, 100], "color": "#FEE2E2"},
                 ],
                 "threshold": {
-                    "line": {
-                        "width": 6,
-                    },
+                    "line": {"color": "#111827", "width": 5},
                     "thickness": 0.8,
-                    "value": config["value"],
+                    "value": value,
                 },
             },
         )
@@ -241,8 +229,11 @@ def render_recommendations(recommendations: list[dict]) -> None:
 
 def render_technical_details(result: dict) -> None:
     with st.expander("Detail teknis model"):
+        st.write(f"Skor Risiko: {result.get('risk_score', '-')}")
+        st.write(f"Kategori Scoring: {result.get('scoring_label', '-')}")
+        st.write(f"Kategori Prediksi Model: {result.get('model_risk_label', result.get('risk_label', '-'))}")
         confidence = result.get("model_confidence_pct")
-        st.write("Keyakinan model: -" if confidence is None else f"Keyakinan model: {confidence:.2f}%")
+        st.write("Keyakinan Model: -" if confidence is None else f"Keyakinan Model: {confidence:.2f}%")
         st.caption(f"Model: {result.get('model_name', 'Model')}")
         st.write(f"BMI: {result.get('bmi')} ({result.get('kategori_bmi')})")
         st.subheader("Probabilitas per Kelas")
@@ -281,20 +272,16 @@ def render_summary(model_artifact: dict) -> None:
         st.subheader("Hasil Prediksi")
         scoring_label = result.get("scoring_label", "-")
         model_risk_label = result.get("model_risk_label", result.get("risk_label", "-"))
-        result_cols = st.columns(2)
-        result_cols[0].metric("Skor Risiko", result.get("risk_score", "-"))
-        result_cols[1].metric("Kategori Risiko (Scoring)", scoring_label)
-        st.metric("Kategori Prediksi Model", model_risk_label)
-        tampilkan_gauge_status(model_risk_label)
-
-        if scoring_label != model_risk_label:
-            st.warning(
-                "Hasil prediksi model berbeda dengan kategori scoring. "
-                "Gunakan hasil ini sebagai estimasi dan lakukan pemeriksaan lebih lanjut."
-            )
+        risk_estimate_pct = calculate_diabetes_risk_estimate(result.get("proba", {}))
+        st.markdown("**Kategori Prediksi Model:**")
+        st.write(model_risk_label)
+        st.markdown("**Estimasi Tingkat Risiko Diabetes:**")
+        st.write("-" if risk_estimate_pct is None else f"{risk_estimate_pct:.2f}%")
+        render_risk_estimate_gauge(risk_estimate_pct)
+        st.caption("Persentase ini merupakan estimasi model berdasarkan data yang dimasukkan, bukan diagnosis medis.")
 
         st.subheader("Keterangan Singkat")
-        st.write(get_risk_explanation(scoring_label))
+        st.write(get_risk_explanation(model_risk_label))
         render_recommendations(result.get("recommendations", []))
         render_technical_details(result)
 
@@ -303,7 +290,7 @@ def main() -> None:
     init_session_state()
 
     st.title("Prediksi Risiko Diabetes")
-    st.caption("Wizard input klinis dan gaya hidup untuk estimasi tingkat risiko diabetes.")
+    st.caption("Form prediksi risiko diabetes dengan pengisian data bertahap.")
 
     try:
         model_artifact = get_model_artifact()
