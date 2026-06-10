@@ -490,7 +490,7 @@ def main() -> None:
     inject_custom_css()
     init_session_state()
 
-    st.title("Prediksi Risiko Diabetes")
+    st.title("Prediksi Risiko Diabetes pada Remaja")
     st.markdown(
         '<div class="app-subtitle">Aplikasi ini membantu memperkirakan tingkat risiko diabetes berdasarkan data kesehatan dan gaya hidup yang Anda masukkan.</div>',
         unsafe_allow_html=True,
