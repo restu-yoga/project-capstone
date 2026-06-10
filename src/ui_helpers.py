@@ -6,17 +6,35 @@ from typing import Any
 import pandas as pd
 
 
-GENETIC_OPTIONS = [
-    "Tidak ada",
-    "Ada (ayah/ibu/saudara kandung)",
+FAMILY_GENETIC_OPTIONS = [
+    "Tidak ada keluarga diabetes",
+    "Tidak tahu / gunakan nilai default",
+    "Ada pada keluarga besar",
+    "Ada pada ayah/ibu/saudara kandung",
 ]
 
-FAMILY_HISTORY_OPTIONS = OrderedDict(
-    [
-        ("Tidak", 0),
-        ("Ya", 1),
-    ]
-)
+FAMILY_GENETIC_MAPPING = {
+    "Tidak ada keluarga diabetes": {
+        "family_history": 0,
+        "genetic_risk_score": 1,
+        "pilihan_genetic": "Tidak ada keluarga diabetes",
+    },
+    "Tidak tahu / gunakan nilai default": {
+        "family_history": 0,
+        "genetic_risk_score": 5,
+        "pilihan_genetic": "Tidak tahu / gunakan nilai default",
+    },
+    "Ada pada keluarga besar": {
+        "family_history": 1,
+        "genetic_risk_score": 6,
+        "pilihan_genetic": "Ada pada keluarga besar",
+    },
+    "Ada pada ayah/ibu/saudara kandung": {
+        "family_history": 1,
+        "genetic_risk_score": 8,
+        "pilihan_genetic": "Ada (ayah/ibu/saudara kandung)",
+    },
+}
 
 PHYSICAL_ACTIVITY_OPTIONS = OrderedDict(
     [
@@ -61,8 +79,7 @@ DISPLAY_LABELS = {
     "berat_kg": "Berat Badan (kg)",
     "tinggi_cm": "Tinggi Badan (cm)",
     "usia": "Usia (tahun)",
-    "pilihan_genetic": "Risiko Genetik",
-    "family_history": "Riwayat Diabetes Keluarga Inti",
+    "riwayat_diabetes_keluarga": "Riwayat diabetes keluarga",
     "physical_activity": "Aktivitas Fisik",
     "dietary_habits": "Pola Makan",
     "smoking": "Merokok",
@@ -82,8 +99,7 @@ QUESTION_TITLES = {
     "berat_kg": "Berat Badan",
     "tinggi_cm": "Tinggi Badan",
     "usia": "Usia",
-    "pilihan_genetic": "Risiko Genetik",
-    "family_history": "Riwayat Diabetes Keluarga Inti",
+    "riwayat_diabetes_keluarga": "Riwayat diabetes keluarga",
     "physical_activity": "Aktivitas Fisik",
     "dietary_habits": "Pola Makan",
     "smoking": "Merokok",
@@ -98,8 +114,7 @@ INPUT_LABELS = {
     "berat_kg": "Pilih berat badan (kg)",
     "tinggi_cm": "Pilih tinggi badan (cm)",
     "usia": "Pilih usia (tahun)",
-    "pilihan_genetic": "Pilih risiko genetik",
-    "family_history": "Pilih riwayat diabetes keluarga inti",
+    "riwayat_diabetes_keluarga": "Riwayat diabetes keluarga",
     "physical_activity": "Pilih aktivitas fisik",
     "dietary_habits": "Pilih pola makan",
     "smoking": "Pilih status merokok",
@@ -114,8 +129,6 @@ CAPTIONS = {
     "berat_kg": "Berat badan diisi dalam satuan kilogram (kg) dan digunakan untuk menghitung BMI.",
     "tinggi_cm": "Tinggi badan diisi dalam satuan centimeter (cm) dan digunakan untuk menghitung BMI.",
     "usia": "Usia diisi dalam satuan tahun.",
-    "pilihan_genetic": "Pilih apakah terdapat faktor keturunan atau riwayat diabetes pada keluarga dekat.",
-    "family_history": "Pilih apakah terdapat riwayat diabetes dalam keluarga.",
     "physical_activity": "Pilih tingkat aktivitas fisik harian, dari jarang bergerak sampai aktif berolahraga.",
     "dietary_habits": "Pilih gambaran kebiasaan pola makan sehari-hari.",
     "smoking": "Pilih apakah pengguna memiliki kebiasaan merokok.",
@@ -132,6 +145,7 @@ CAPTIONS.update(
         "berat_kg": "Masukkan berat badan dalam kilogram. Data ini digunakan untuk menghitung BMI.",
         "tinggi_cm": "Masukkan tinggi badan dalam centimeter. Data ini digunakan untuk menghitung BMI.",
         "bmi": "BMI dihitung otomatis dari berat badan dan tinggi badan.",
+        "riwayat_diabetes_keluarga": "Pilih kondisi yang paling mendekati riwayat diabetes dalam keluarga Anda. Jika tidak tahu, gunakan pilihan default.",
     }
 )
 
@@ -216,44 +230,25 @@ CATEGORY_EXPLANATIONS = {
             },
         ],
     },
-    "pilihan_genetic": {
-        "title": "Risiko Genetik",
-        "subtitle": "Gunakan informasi keluarga dekat yang Anda ketahui.",
+    "riwayat_diabetes_keluarga": {
+        "title": "Riwayat Diabetes Keluarga",
+        "subtitle": "Pilih kondisi yang paling mendekati riwayat diabetes dalam keluarga Anda.",
         "rows": [
             {
-                "Kategori": "Tidak ada",
-                "Deskripsi": "Tidak diketahui adanya diabetes pada ayah, ibu, atau saudara kandung.",
+                "Kategori": "Tidak ada keluarga diabetes",
+                "Deskripsi": "Tidak diketahui adanya riwayat diabetes pada keluarga.",
             },
             {
-                "Kategori": "Ada (ayah/ibu/saudara kandung)",
-                "Deskripsi": "Terdapat anggota keluarga dekat yang memiliki riwayat diabetes.",
-            },
-        ],
-    },
-    "family_history": {
-        "title": "Riwayat Diabetes Keluarga Inti",
-        "subtitle": "(Ayah, Ibu, Saudara Kandung)",
-        "rows": [
-            {
-                "Kategori": "Tidak",
-                "Deskripsi": "Tidak ada riwayat diabetes pada ayah, ibu, atau saudara kandung.",
+                "Kategori": "Tidak tahu / gunakan nilai default",
+                "Deskripsi": "Pilih ini jika Anda tidak mengetahui riwayat diabetes keluarga. Sistem akan menggunakan nilai tengah/default.",
             },
             {
-                "Kategori": "Ya",
-                "Deskripsi": "Terdapat riwayat diabetes pada ayah, ibu, atau saudara kandung.",
-            },
-        ],
-        "extra_title": "Riwayat Diabetes Keluarga Besar",
-        "extra_subtitle": "(Kakek, Nenek, Paman, Bibi, Sepupu, dan Kerabat Lainnya)",
-        "extra_note": "Informasi keluarga besar hanya sebagai panduan edukatif dan tidak menjadi input tambahan model.",
-        "extra_rows": [
-            {
-                "Kategori": "Tidak",
-                "Deskripsi": "Tidak ada riwayat diabetes pada anggota keluarga besar.",
+                "Kategori": "Ada pada keluarga besar",
+                "Deskripsi": "Terdapat riwayat diabetes pada kakek, nenek, paman, bibi, sepupu, atau kerabat lainnya.",
             },
             {
-                "Kategori": "Ya",
-                "Deskripsi": "Terdapat riwayat diabetes pada anggota keluarga besar.",
+                "Kategori": "Ada pada ayah/ibu/saudara kandung",
+                "Deskripsi": "Terdapat riwayat diabetes pada keluarga inti seperti ayah, ibu, atau saudara kandung.",
             },
         ],
     },
@@ -340,20 +335,12 @@ QUESTIONS = [
         "step": 1,
     },
     {
-        "key": "pilihan_genetic",
-        "title": QUESTION_TITLES["pilihan_genetic"],
-        "label": INPUT_LABELS["pilihan_genetic"],
+        "key": "riwayat_diabetes_keluarga",
+        "title": QUESTION_TITLES["riwayat_diabetes_keluarga"],
+        "label": INPUT_LABELS["riwayat_diabetes_keluarga"],
         "kind": "select",
-        "options": GENETIC_OPTIONS,
-        "default": "Tidak ada",
-    },
-    {
-        "key": "family_history",
-        "title": QUESTION_TITLES["family_history"],
-        "label": INPUT_LABELS["family_history"],
-        "kind": "select_map",
-        "options": FAMILY_HISTORY_OPTIONS,
-        "default": "Tidak",
+        "options": FAMILY_GENETIC_OPTIONS,
+        "default": "Tidak tahu / gunakan nilai default",
     },
     {
         "key": "physical_activity",
@@ -439,8 +426,18 @@ def normalize_answer_value(question: dict[str, Any], answer: Any) -> Any:
 def make_prediction_payload(answers: dict[str, Any]) -> dict[str, Any]:
     payload = {}
     question_by_key = {question["key"]: question for question in QUESTIONS}
-    for key, answer in answers.items():
+    for key, question in question_by_key.items():
+        answer = answers.get(key, question["default"])
         payload[key] = normalize_answer_value(question_by_key[key], answer)
+    selected_family_history = payload.get(
+        "riwayat_diabetes_keluarga",
+        "Tidak tahu / gunakan nilai default",
+    )
+    family_genetic_values = FAMILY_GENETIC_MAPPING.get(
+        selected_family_history,
+        FAMILY_GENETIC_MAPPING["Tidak tahu / gunakan nilai default"],
+    )
+    payload.update(family_genetic_values)
     return payload
 
 
@@ -466,10 +463,9 @@ def make_summary_dataframe(answers: dict[str, Any]) -> pd.DataFrame:
         {"Fitur": SUMMARY_LABELS["tinggi_cm"], "Nilai": f"{payload['tinggi_cm']} cm"},
         {"Fitur": SUMMARY_LABELS["bmi"], "Nilai": f"{bmi:.2f} kg/m² ({kategori_bmi})"},
         {"Fitur": SUMMARY_LABELS["usia"], "Nilai": f"{payload['usia']} tahun"},
-        {"Fitur": SUMMARY_LABELS["pilihan_genetic"], "Nilai": answers["pilihan_genetic"]},
         {
-            "Fitur": SUMMARY_LABELS["family_history"],
-            "Nilai": label_from_options(FAMILY_HISTORY_OPTIONS, answers["family_history"]),
+            "Fitur": SUMMARY_LABELS["riwayat_diabetes_keluarga"],
+            "Nilai": payload["riwayat_diabetes_keluarga"],
         },
         {
             "Fitur": SUMMARY_LABELS["physical_activity"],

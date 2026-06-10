@@ -2,6 +2,13 @@ import unittest
 
 from src.inference import prediksi_diabetes
 from src.scoring import calculate_risk_score, create_risk_level
+from src.ui_helpers import (
+    FAMILY_GENETIC_MAPPING,
+    QUESTIONS,
+    get_default_answers,
+    make_prediction_payload,
+    make_summary_dataframe,
+)
 
 
 class RiskScoringTest(unittest.TestCase):
@@ -89,6 +96,44 @@ class RiskScoringTest(unittest.TestCase):
         self.assertEqual(result["scoring_label"], "Tidak Berisiko")
         self.assertEqual(result["model_risk_label"], "Tidak Berisiko")
         self.assertIsNotNone(result["model_confidence_pct"])
+
+    def test_family_genetic_input_is_combined_in_payload(self):
+        answers = get_default_answers()
+        answers["riwayat_diabetes_keluarga"] = "Ada pada keluarga besar"
+
+        payload = make_prediction_payload(answers)
+
+        self.assertEqual(payload["family_history"], 1)
+        self.assertEqual(payload["genetic_risk_score"], 6)
+        self.assertEqual(payload["pilihan_genetic"], "Ada pada keluarga besar")
+
+    def test_family_genetic_question_replaces_old_separate_questions(self):
+        question_keys = [question["key"] for question in QUESTIONS]
+
+        self.assertIn("riwayat_diabetes_keluarga", question_keys)
+        self.assertNotIn("pilihan_genetic", question_keys)
+        self.assertNotIn("family_history", question_keys)
+
+    def test_summary_shows_single_family_history_row(self):
+        answers = get_default_answers()
+        answers["riwayat_diabetes_keluarga"] = "Ada pada ayah/ibu/saudara kandung"
+
+        summary_df = make_summary_dataframe(answers)
+        fitur_values = summary_df["Fitur"].tolist()
+
+        self.assertIn("Riwayat diabetes keluarga", fitur_values)
+        self.assertNotIn("Risiko Genetik", fitur_values)
+        self.assertNotIn("Riwayat Diabetes Keluarga Inti", fitur_values)
+
+    def test_required_family_genetic_mapping_is_available(self):
+        self.assertEqual(
+            FAMILY_GENETIC_MAPPING["Tidak tahu / gunakan nilai default"],
+            {
+                "family_history": 0,
+                "genetic_risk_score": 5,
+                "pilihan_genetic": "Tidak tahu / gunakan nilai default",
+            },
+        )
 
 
 if __name__ == "__main__":

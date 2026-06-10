@@ -77,10 +77,13 @@ def load_model_artifact(model_path: str | Path = DEFAULT_MODEL_PATH) -> dict[str
 
 def mapping_genetic(pilihan: str) -> int:
     mapping = {
-        "Tidak ada": 2,
-        "Tidak ada keluarga diabetes": 2,
-        "Ada (paman/bibi/kakek/nenek)": 5,
-        "Ada (ayah/ibu/saudara kandung)": 9,
+        "Tidak ada": 1,
+        "Tidak ada keluarga diabetes": 1,
+        "Tidak tahu / gunakan nilai default": 5,
+        "Ada (paman/bibi/kakek/nenek)": 6,
+        "Ada pada keluarga besar": 6,
+        "Ada pada ayah/ibu/saudara kandung": 8,
+        "Ada (ayah/ibu/saudara kandung)": 8,
     }
     return mapping[pilihan]
 
