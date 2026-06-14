@@ -264,6 +264,15 @@ def get_risk_explanation(risk_label: str) -> str:
     )
 
 
+def get_display_risk_percent(label: str) -> float:
+    mapping = {
+        "Tidak Berisiko": 20.0,
+        "Sedang": 50.0,
+        "Tinggi": 85.0,
+    }
+    return mapping.get(label, 50.0)
+
+
 def render_metric_card(label: str, value: str, caption: str | None = None) -> None:
     caption_html = f'<div class="card-caption">{html.escape(caption)}</div>' if caption else ""
     st.markdown(
@@ -455,8 +464,8 @@ def render_summary(model_artifact: dict) -> None:
         st.divider()
         st.subheader("Hasil Prediksi")
         model_risk_label = result.get("model_risk_label", result.get("risk_label", "-"))
-        risk_estimate_pct = calculate_diabetes_risk_estimate(result.get("proba", {}))
-        risk_estimate_text = "-" if risk_estimate_pct is None else f"{risk_estimate_pct:.2f}%"
+        risk_estimate_pct = get_display_risk_percent(model_risk_label)
+        risk_estimate_text = f"{risk_estimate_pct:.2f}%"
         bmi_text = f"{result.get('bmi', '-')} ({result.get('kategori_bmi', '-')})"
 
         card_cols = st.columns(3, gap="medium")
